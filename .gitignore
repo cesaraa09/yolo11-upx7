@@ -1,0 +1,17 @@
+# Ambiente virtual
+venv/
+env/
+.yolo11-env/
+.yolo11-env/
+yolo11-env
+
+# Arquivos de ambiente
+.env
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
