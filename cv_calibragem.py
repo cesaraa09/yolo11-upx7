@@ -25,7 +25,7 @@ def draw_polygon(event, x, y, flags, param):
         
         pts = []
 
-cap = cv2.VideoCapture('video2.webm')  
+cap = cv2.VideoCapture('teste1.mp4')  
 
 cv2.namedWindow('Video')
 cv2.setMouseCallback('Video', draw_polygon)

@@ -8,7 +8,7 @@ from ultralytics import YOLO
 from datetime import datetime
 
 # configs basicas mutaveis 
-VIDEO_PATH = 'video2.webm'  # nome do video é o mesmo nome das coordenadas no json
+VIDEO_PATH = 'teste1.mp4'  # nome do video é o mesmo nome das coordenadas no json
 MODEL_PATH = 'yolo11s.pt'  # mudar para yolo11n quando necessario (pc mais fraco e etc)
 COORDS_PATH = 'areas.json'  
 RESULTS_JSON = 'resultados.json'  
@@ -16,13 +16,13 @@ FRAME_SKIP = 8
 VEICULOS = [2]  # carros 2, motos 3, onibus 5 e caminhões 7
 STATIONARY_THRESHOLD = 3  # depende do video, mudar caso os "parados" estejam errados
 #IOU_THRESHOLD = 0.5
-#CONFIDENCE_THRESHOLD = 0.6
+CONFIDENCE_THRESHOLD = 0.3
 
 def carregar_areas(video_nome, caminho_json):
     with open(caminho_json, 'r') as f:
         dados = json.load(f)
     if video_nome not in dados:
-        print(f"[AVISO] Nenhuma área encontrada para o vídeo: {video_nome}")
+        print(f"Nenhuma área encontrada para o vídeo: {video_nome}")
         return {}
     return {k: np.array(v, dtype=np.int32) for k, v in dados[video_nome].items()}
 
@@ -48,11 +48,12 @@ while cap.isOpened():
     if not ret:
         break
 
+    ##frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE) ## coloca caso o vídeo não esteja na orientação certa
     frame_count += 1
     if frame_count % FRAME_SKIP != 0:
         continue
 
-    results = model.track(frame, persist=True, classes=VEICULOS, verbose=False)[0]
+    results = model.track(frame, persist=True, classes=VEICULOS, verbose=False, conf=CONFIDENCE_THRESHOLD)[0]
 
     dados_areas = {nome: {"veiculos": 0, "tipos": {}, "parados": 0} for nome in areas}
 
