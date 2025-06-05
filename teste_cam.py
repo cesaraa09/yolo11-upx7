@@ -8,11 +8,11 @@ from ultralytics import YOLO
 from datetime import datetime
 
 # configs basicas mutaveis 
-VIDEO_PATH = 0  # usar índice da webcam, 0 geralmente é a webcam padrão (DroidCam, etc)
+VIDEO_PATH = 1  # usar índice da webcam, 0 geralmente é a webcam padrão (DroidCam, etc)
 MODEL_PATH = 'yolo11s.pt'  # mudar para yolo11n quando necessario (pc mais fraco e etc)
 COORDS_PATH = 'areas.json'  
 RESULTS_JSON = 'resultados2.json'  # novo arquivo de saída
-FRAME_SKIP = 8 
+FRAME_SKIP = 10 
 VEICULOS = [2]  # carros 2, motos 3, onibus 5 e caminhões 7
 STATIONARY_THRESHOLD = 3  # depende do video, mudar caso os "parados" estejam errados
 #IOU_THRESHOLD = 0.5
@@ -31,7 +31,9 @@ def salvar_json(dados, caminho):
     with open(caminho, 'w') as f:
         json.dump(dados, f, indent=2)
 
-model = YOLO(MODEL_PATH).to("cuda")
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = YOLO(MODEL_PATH).to(device)
+
 cap = cv2.VideoCapture(VIDEO_PATH)
 areas = carregar_areas("webcam", COORDS_PATH)  # nome do vídeo é substituído por "webcam"
 
