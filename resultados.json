@@ -1,373 +1,324 @@
 [
   {
-    "timestamp": 0.23,
+    "timestamp": 0.3,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
+        },
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
         },
         "parados": 0
       }
     }
   },
   {
-    "timestamp": 0.5,
+    "timestamp": 0.63,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
+        },
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
         },
         "parados": 0
       }
     }
   },
   {
-    "timestamp": 0.77,
+    "timestamp": 0.97,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
         },
         "parados": 0
-      }
-    }
-  },
-  {
-    "timestamp": 1.03,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      },
+      "area_2": {
+        "veiculos": 1,
         "tipos": {
-          "car": 4
+          "car": 1
         },
-        "parados": 3
+        "parados": 0
       }
     }
   },
   {
     "timestamp": 1.3,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
         },
-        "parados": 2
-      }
-    }
-  },
-  {
-    "timestamp": 1.57,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+        "parados": 3
+      },
+      "area_2": {
+        "veiculos": 1,
         "tipos": {
-          "car": 4
+          "car": 1
         },
         "parados": 1
       }
     }
   },
   {
-    "timestamp": 1.83,
+    "timestamp": 1.63,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
         },
-        "parados": 4
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 0
       }
     }
   },
   {
-    "timestamp": 2.1,
+    "timestamp": 1.97,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
         },
-        "parados": 4
+        "parados": 3
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 1
       }
     }
   },
   {
-    "timestamp": 2.37,
+    "timestamp": 2.3,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
         },
-        "parados": 4
+        "parados": 3
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 1
       }
     }
   },
   {
     "timestamp": 2.63,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
-        },
-        "parados": 4
-      }
-    }
-  },
-  {
-    "timestamp": 2.9,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
-        "tipos": {
-          "car": 4
-        },
-        "parados": 4
-      }
-    }
-  },
-  {
-    "timestamp": 3.17,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
-        "tipos": {
-          "car": 4
-        },
-        "parados": 0
-      }
-    }
-  },
-  {
-    "timestamp": 3.43,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
-        "tipos": {
-          "car": 4
-        },
-        "parados": 0
-      }
-    }
-  },
-  {
-    "timestamp": 3.7,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
-        "tipos": {
-          "car": 4
+          "car": 3
         },
         "parados": 3
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 0
+      }
+    }
+  },
+  {
+    "timestamp": 2.97,
+    "areas": {
+      "area_1": {
+        "veiculos": 3,
+        "tipos": {
+          "car": 3
+        },
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 0
+      }
+    }
+  },
+  {
+    "timestamp": 3.3,
+    "areas": {
+      "area_1": {
+        "veiculos": 3,
+        "tipos": {
+          "car": 3
+        },
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 0
+      }
+    }
+  },
+  {
+    "timestamp": 3.63,
+    "areas": {
+      "area_1": {
+        "veiculos": 3,
+        "tipos": {
+          "car": 3
+        },
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 0
       }
     }
   },
   {
     "timestamp": 3.97,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
+        },
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 0
+      }
+    }
+  },
+  {
+    "timestamp": 4.3,
+    "areas": {
+      "area_1": {
+        "veiculos": 3,
+        "tipos": {
+          "car": 3
+        },
+        "parados": 3
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
         },
         "parados": 1
       }
     }
   },
   {
-    "timestamp": 4.23,
+    "timestamp": 4.63,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
         },
-        "parados": 2
-      }
-    }
-  },
-  {
-    "timestamp": 4.5,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
         "tipos": {
-          "car": 4
+          "car": 1
         },
         "parados": 0
       }
     }
   },
   {
-    "timestamp": 4.77,
+    "timestamp": 4.97,
     "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 4
+          "car": 3
         },
         "parados": 0
-      }
-    }
-  },
-  {
-    "timestamp": 5.03,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+      },
+      "area_2": {
+        "veiculos": 1,
         "tipos": {
-          "car": 4
+          "car": 1
         },
-        "parados": 4
+        "parados": 0
       }
     }
   },
   {
     "timestamp": 5.3,
     "areas": {
-      "area_rua1": {
+      "area_1": {
         "veiculos": 3,
         "tipos": {
           "car": 3
         },
-        "parados": 3
-      }
-    }
-  },
-  {
-    "timestamp": 5.57,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
         "tipos": {
-          "car": 4
-        },
-        "parados": 3
-      }
-    }
-  },
-  {
-    "timestamp": 5.87,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
-        "tipos": {
-          "car": 4
-        },
-        "parados": 3
-      }
-    }
-  },
-  {
-    "timestamp": 6.13,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
-        "tipos": {
-          "car": 4
-        },
-        "parados": 4
-      }
-    }
-  },
-  {
-    "timestamp": 6.4,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 3,
-        "tipos": {
-          "car": 3
-        },
-        "parados": 3
-      }
-    }
-  },
-  {
-    "timestamp": 6.67,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 4,
-        "tipos": {
-          "car": 4
-        },
-        "parados": 4
-      }
-    }
-  },
-  {
-    "timestamp": 6.93,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 3,
-        "tipos": {
-          "car": 3
-        },
-        "parados": 3
-      }
-    }
-  },
-  {
-    "timestamp": 7.2,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 3,
-        "tipos": {
-          "car": 3
-        },
-        "parados": 3
-      }
-    }
-  },
-  {
-    "timestamp": 7.47,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 3,
-        "tipos": {
-          "car": 3
-        },
-        "parados": 3
-      }
-    }
-  },
-  {
-    "timestamp": 7.73,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 2,
-        "tipos": {
-          "car": 2
-        },
-        "parados": 2
-      }
-    }
-  },
-  {
-    "timestamp": 8.0,
-    "areas": {
-      "area_rua1": {
-        "veiculos": 3,
-        "tipos": {
-          "car": 3
+          "car": 1
         },
         "parados": 0
       }
     }
   },
   {
-    "timestamp": 8.27,
+    "timestamp": 5.63,
     "areas": {
-      "area_rua1": {
-        "veiculos": 2,
+      "area_1": {
+        "veiculos": 3,
         "tipos": {
-          "car": 2
+          "car": 3
         },
-        "parados": 1
+        "parados": 0
+      },
+      "area_2": {
+        "veiculos": 1,
+        "tipos": {
+          "car": 1
+        },
+        "parados": 0
       }
     }
   }

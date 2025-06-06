@@ -1,0 +1,341 @@
+detecção em video:
+import cv2
+import numpy as np
+import torch
+import json
+import time
+from ultralytics import YOLO
+
+# Configurações
+VIDEO_PATH = 'video3.mp4'
+MODEL_PATH = 'yolo11s.pt'
+COORDS_PATH = 'areas.json'
+RESULTS_JSON = 'resultados.json'
+FRAME_SKIP = 10
+VEICULOS = [2]
+STATIONARY_THRESHOLD = 3
+CONFIDENCE_THRESHOLD = 0.3
+
+def carregar_areas(video_nome, caminho_json):
+    with open(caminho_json, 'r') as f:
+        dados = json.load(f)
+    if video_nome not in dados:
+        print(f"[AVISO] Nenhuma área encontrada para o vídeo: {video_nome}")
+        return {}
+    return {k: np.array(v, dtype=np.int32) for k, v in dados[video_nome].items()}
+
+def salvar_json(dados, caminho):
+    with open(caminho, 'w') as f:
+        json.dump(dados, f, indent=2)
+
+# Dispositivo: CPU se não tiver CUDA
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = YOLO(MODEL_PATH).to(device)
+
+# Leitura do vídeo
+cap = cv2.VideoCapture(VIDEO_PATH)
+video_nome = VIDEO_PATH.split("/")[-1]
+areas = carregar_areas(video_nome, COORDS_PATH)
+
+frame_count = 0
+resultados = []
+fps = cap.get(cv2.CAP_PROP_FPS) or 30
+frame_duration = FRAME_SKIP / fps
+historico_centros = {}
+
+while cap.isOpened():
+    start_time = time.time()
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    frame_count += 1
+    if frame_count % FRAME_SKIP != 0:
+        continue
+
+    results = model.track(frame, persist=True, classes=VEICULOS, verbose=False, conf=CONFIDENCE_THRESHOLD)[0]
+    dados_areas = {nome: {"veiculos": 0, "tipos": {}, "parados": 0} for nome in areas}
+
+    if results.boxes is not None:
+        ids = results.boxes.id.cpu().numpy() if results.boxes.id is not None else [None]*len(results.boxes.cls)
+        for box, cls, obj_id in zip(results.boxes.xyxy.cpu().numpy(), results.boxes.cls.cpu().numpy(), ids):
+            cls = int(cls)
+            if cls not in VEICULOS:
+                continue
+
+            x1, y1, x2, y2 = box
+            ponto = ((x1 + x2) / 2, (y1 + y2) / 2)
+
+            for nome_area, poly in areas.items():
+                if cv2.pointPolygonTest(poly, ponto, False) >= 0:
+                    nome_cls = model.model.names[cls] if hasattr(model.model, 'names') else str(cls)
+                    dados_areas[nome_area]["veiculos"] += 1
+                    dados_areas[nome_area]["tipos"].setdefault(nome_cls, 0)
+                    dados_areas[nome_area]["tipos"][nome_cls] += 1
+
+                    if obj_id is not None:
+                        historico_centros.setdefault(obj_id, []).append(ponto)
+                        if len(historico_centros[obj_id]) > STATIONARY_THRESHOLD:
+                            recentes = historico_centros[obj_id][-STATIONARY_THRESHOLD:]
+                            dists = [np.linalg.norm(np.array(recentes[-1]) - np.array(p)) for p in recentes[:-1]]
+                            if all(d < 2.0 for d in dists):
+                                dados_areas[nome_area]["parados"] += 1
+                    break
+
+    timestamp = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+    resultados.append({
+        "timestamp": round(timestamp, 2),
+        "areas": dados_areas
+    })
+
+    annotated = results.plot() if results.boxes is not None else frame.copy()
+    for nome_area, poly in areas.items():
+        cv2.polylines(annotated, [poly], isClosed=True, color=(0, 255, 0), thickness=2)
+        cv2.putText(annotated, nome_area, tuple(poly[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
+
+    cv2.putText(annotated, f"Frame: {frame_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+    cv2.imshow('YOLOv11 + Tracking (vídeo)', annotated)
+
+    elapsed = time.time() - start_time
+    tempo_espera = max(0, frame_duration - elapsed)
+    time.sleep(tempo_espera)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+salvar_json(resultados, RESULTS_JSON)
+print(f"Resultados salvos em: {RESULTS_JSON}")
+
+
+detecção em webcam/live
+import cv2
+import numpy as np
+import torch
+import json
+import os
+import time
+from ultralytics import YOLO
+from datetime import datetime
+
+# configs basicas mutaveis 
+VIDEO_PATH = 1  # usar índice da webcam, 0 geralmente é a webcam padrão (DroidCam, etc)
+MODEL_PATH = 'yolo11s.pt'  # mudar para yolo11n quando necessario (pc mais fraco e etc)
+COORDS_PATH = 'areas.json'  
+RESULTS_JSON = 'resultados2.json'  # novo arquivo de saída
+FRAME_SKIP = 10 
+VEICULOS = [2]  # carros 2, motos 3, onibus 5 e caminhões 7
+STATIONARY_THRESHOLD = 3  # depende do video, mudar caso os "parados" estejam errados
+#IOU_THRESHOLD = 0.5
+CONFIDENCE_THRESHOLD = 0.3
+
+def carregar_areas(video_nome, caminho_json):
+    with open(caminho_json, 'r') as f:
+        dados = json.load(f)
+    if video_nome not in dados:
+        print(f"[AVISO] Nenhuma área encontrada para o vídeo: {video_nome}")
+        return {}
+    return {k: np.array(v, dtype=np.int32) for k, v in dados[video_nome].items()}
+
+
+def salvar_json(dados, caminho):
+    with open(caminho, 'w') as f:
+        json.dump(dados, f, indent=2)
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = YOLO(MODEL_PATH).to(device)
+
+cap = cv2.VideoCapture(VIDEO_PATH)
+areas = carregar_areas("webcam", COORDS_PATH)  # nome do vídeo é substituído por "webcam"
+
+frame_count = 0
+resultados = []
+fps = 30  # valor fixo, pois webcam nem sempre retorna corretamente via cap.get
+frame_duration = FRAME_SKIP / fps
+
+historico_centros = {}
+
+while cap.isOpened():
+    start_time = time.time()
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    ##frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE) ## coloca caso o vídeo não esteja na orientação certa
+    ##frame = cv2.flip(frame, 1)  ## descomente se a imagem estiver espelhada
+    frame_count += 1
+    if frame_count % FRAME_SKIP != 0:
+        continue
+
+    results = model.track(frame, persist=True, classes=VEICULOS, verbose=False, conf=CONFIDENCE_THRESHOLD)[0]
+
+    dados_areas = {nome: {"veiculos": 0, "tipos": {}, "parados": 0} for nome in areas}
+
+    if results.boxes is not None:
+        ids = results.boxes.id.cpu().numpy() if results.boxes.id is not None else [None]*len(results.boxes.cls)
+
+        for box, cls, obj_id in zip(results.boxes.xyxy.cpu().numpy(), results.boxes.cls.cpu().numpy(), ids):
+            cls = int(cls)
+            if cls not in VEICULOS:
+                continue
+
+            x1, y1, x2, y2 = box
+            x_centro = (x1 + x2) / 2
+            y_centro = (y1 + y2) / 2
+            ponto = (x_centro, y_centro)
+
+            for nome_area, poly in areas.items():
+                if cv2.pointPolygonTest(poly, ponto, False) >= 0:
+                    nome_cls = model.model.names[cls] if hasattr(model.model, 'names') else str(cls)
+                    dados_areas[nome_area]["veiculos"] += 1
+                    dados_areas[nome_area]["tipos"].setdefault(nome_cls, 0)
+                    dados_areas[nome_area]["tipos"][nome_cls] += 1
+
+                    if obj_id is not None:
+                        historico_centros.setdefault(obj_id, []).append(ponto)
+                        if len(historico_centros[obj_id]) > STATIONARY_THRESHOLD:
+                            recentes = historico_centros[obj_id][-STATIONARY_THRESHOLD:]
+                            dists = [np.linalg.norm(np.array(recentes[-1]) - np.array(p)) for p in recentes[:-1]]
+                            if all(d < 2.0 for d in dists):
+                                dados_areas[nome_area]["parados"] += 1
+                    break
+
+    timestamp = time.time()  # substitui get(CAP_PROP_POS_MSEC), pois é em tempo real
+    resultados.append({
+        "timestamp": round(timestamp, 2),
+        "areas": dados_areas
+    })
+
+    annotated = results.plot() if results.boxes is not None else frame.copy()
+    for nome_area, poly in areas.items():
+        cv2.polylines(annotated, [poly], isClosed=True, color=(0, 255, 0), thickness=2)
+        cv2.putText(annotated, nome_area, tuple(poly[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
+
+    cv2.putText(annotated, f"Frame: {frame_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+    cv2.imshow('YOLOv11 + Tracking', annotated)
+
+    elapsed = time.time() - start_time
+    tempo_espera = max(0, frame_duration - elapsed)
+    time.sleep(tempo_espera)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+salvar_json(resultados, RESULTS_JSON)
+print(f"Resultados salvos em: {RESULTS_JSON}")
+
+dashboard streamlit:
+import streamlit as st
+import json
+import pandas as pd
+import plotly.express as px
+from datetime import datetime
+
+def carregar_dados(caminho_json):
+    with open(caminho_json, 'r') as f:
+        return json.load(f)
+
+def formatar_tempo(t):
+    if isinstance(t, float) or isinstance(t, int):
+        minutos = int(t // 60)
+        segundos = int(t % 60)
+        return f"{minutos:02d}:{segundos:02d}"
+    elif isinstance(t, str):
+        return t  # já está formatado
+    return str(t)
+
+st.set_page_config(page_title="Dashboard de Tráfego", layout="wide")
+st.title("📊 Dashboard de dados de tráfego")
+
+dados_raw = carregar_dados("resultados.json")
+
+# Detectar tipo de timestamp
+primeiro_ts = dados_raw[0]["timestamp"]
+modo_horario = isinstance(primeiro_ts, str)
+
+# Se for string, parse para datetime, senão, trata como segundos
+if modo_horario:
+    for entrada in dados_raw:
+        entrada["timestamp_dt"] = datetime.strptime(entrada["timestamp"], "%Y-%m-%d %H:%M:%S")
+    dados_ordenados = sorted(dados_raw, key=lambda x: x["timestamp_dt"])
+    tempos = [e["timestamp_dt"] for e in dados_ordenados]
+    timestamps_formatados = [e["timestamp"] for e in dados_ordenados]
+else:
+    dados_ordenados = sorted(dados_raw, key=lambda x: x["timestamp"])
+    tempos = [e["timestamp"] for e in dados_ordenados]
+    timestamps_formatados = [formatar_tempo(t) for t in tempos]
+
+# Slider
+indice = st.slider("Escolha o tempo:", min_value=0, max_value=len(tempos) - 1, step=1)
+entrada_atual = dados_ordenados[indice]
+areas_dado = entrada_atual["areas"]
+
+# Mostrar dados
+st.subheader(f"⏱️ Dados para: {timestamps_formatados[indice]}")
+
+col1, col2 = st.columns(2)
+for i, (nome_area, info) in enumerate(areas_dado.items()):
+    with (col1 if i % 2 == 0 else col2):
+        st.markdown(f"### 🛣️ {nome_area}")
+        st.metric("Veículos Totais", info["veiculos"])
+        st.metric("Veículos Parados", info["parados"])
+        if info["tipos"]:
+            df_tipos = pd.DataFrame(list(info["tipos"].items()), columns=["Tipo", "Quantidade"])
+            fig = px.bar(df_tipos, x="Tipo", y="Quantidade", title="Tipos de veículos")
+            fig.update_yaxes(tickmode="linear", dtick=1)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Nenhum veículo detectado nesta área.")
+
+
+with st.expander("📈 Evolução Temporal"):
+    linhas = []
+    for entrada in dados_ordenados:
+        tempo_label = entrada["timestamp"] if modo_horario else formatar_tempo(entrada["timestamp"])
+        for area, info in entrada["areas"].items():
+            linhas.append({
+                "tempo": tempo_label,
+                "área": area,
+                "veículos": info["veiculos"],
+                "parados": info["parados"]
+            })
+
+    df = pd.DataFrame(linhas)
+    fig1 = px.line(df, x="tempo", y="veículos", color="área", title="Veículos ao longo do tempo")
+    fig1.update_yaxes(tickmode="linear", dtick=1)
+
+    fig2 = px.line(df, x="tempo", y="parados", color="área", title="Veículos parados ao longo do tempo")
+    fig2.update_yaxes(tickmode="linear", dtick=1)
+
+    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
+
+
+json das areas:
+{
+    "video1.mp4": {
+      "area_rua1": [[461, 170], [885, 166], [853, 12], [540, 7]],
+      "area_rua2": [[304, 236], [998, 232], [1269, 688], [15, 656]]
+    },
+    "video2.webm": {
+      "area_rua1": [[4, 961], [355, 649], [424, 392], [668, 231], [919, 221], [1160, 6], [1910, 6], [1908, 1043]]
+    },
+    "teste_carrinhos.mp4": {
+      "area_rua1": [[116, 666], [96, 128], [976, 21], [1022, 693]]
+    },
+    "teste1.mp4": {
+      "area_rua1": [[11,11], [21, 455], [832, 452], [822, 14]]
+    },
+    "webcam": {
+      "area_rua1": [[1,1], [1, 719], [1279,719], [1279, 1]]
+    },
+    "video3.mp4": {
+        "area_1": [[558, 196], [485, 277], [230, 220], [327, 145]],
+        "area_2": [[457, 294], [354, 452], [63, 343], [184, 254]]
+    }
+
+  }
+  
